@@ -134,3 +134,35 @@ Both CI workflows fulfill identical continuous integration objectives: compiling
 However, key technical differences exist:
 1. **Configuration Syntax & Declarative Style:** Maven uses structured, tag-based XML (`pom.xml`) coupled with the Shade and CycloneDX plugins. Gradle uses a concise domain-specific language (`build.gradle`) with the Shadow plugin, providing cleaner dependency scopes (`implementation`, `testImplementation`, `testRuntimeOnly`) and more flexible task customization.
 2. **Action Ecosystem & Execution Model:** The Maven workflow is invoked via standard wrapper flags (`./mvnw -B clean verify`) relying on JVM caching via `actions/setup-java`. In contrast, the Gradle workflow takes advantage of the dedicated `gradle/actions/setup-gradle` action, which delivers native build caching, configuration cache support, and targeted task invocations (`./gradlew clean build shadowJar`).
+
+## Step 8.5 - Run the Gradle build automatically in GitHub Actions
+Workflow file: `.github/workflows/gradle.yml`
+Status: Workflow executed and passed successfully on GitHub Actions.
+Artifact generated: `fleetcheck-gradle-build` (containing `fleetcheck-1.0.0-all.jar`).
+
+**Evidence 8.5: Record the URL of the successful Gradle GitHub Actions execution.**
+https://github.com/TiagoGuerra18/fleetcheck-gradle/actions/runs/37231359769
+
+## Step 8.6 - Generate an SBOM with Gradle
+Plugin added: `id 'org.cyclonedx.bom' version '3.4.1'`
+Execution command: `.\gradlew.bat cyclonedxBom`
+Generated artifact: `build/reports/cyclonedx/bom.json`
+
+**Evidence 8.6: Why does the Gradle SBOM contain dependencies that you did not explicitly type in build.gradle?**
+Gradle resolves dependencies transitively. When declaring `jackson-databind`, it automatically resolves its internal dependencies (`jackson-core` and `jackson-annotations`). The CycloneDX SBOM captures the entire software supply chain graph (all direct and transitive runtime and test components) to provide complete visibility for security compliance and vulnerability scanning.
+
+## 8.7 Compare Maven and Gradle
+
+| Task | Maven | Gradle |
+| :--- | :--- | :--- |
+| Build configuration | `pom.xml` | `build.gradle` |
+| Clean build | `mvnw.cmd clean verify` | `gradlew.bat clean build` |
+| Add dependency | `<dependency>...</dependency>` | `implementation 'group:artifact:version'` |
+| Inspect dependencies | `mvn dependency:tree` | `gradle dependencies` |
+| Wrapper | `mvnw.cmd` | `gradlew.bat` |
+| Build output | `target/` | `build/` |
+| JAR location | `target/` | `build/libs/` |
+| SBOM | CycloneDX Maven plugin | CycloneDX Gradle plugin |
+
+### Final Question: Both Maven and Gradle built exactly the same FleetCheck application. What changed: the software or the build process?
+The software (source code and business logic) remained completely unchanged. What changed was the build process: the dependency management syntax, lifecycle orchestration, compilation engine, task execution model, and tooling used to package and automate the delivery of the identical application.
