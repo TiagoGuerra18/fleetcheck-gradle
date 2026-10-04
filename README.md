@@ -122,3 +122,15 @@ Vehicles loaded: 4
 Vehicles requiring service: 1
 Average mileage: 37000 km
 ```
+
+## Step 8.4 - Gradle CI Pipeline via GitHub Actions
+Workflow file: `.github/workflows/gradle.yml`
+Status: Workflow executed and passed successfully on GitHub Actions.
+Artifact generated: `fleetcheck-gradle-build` (containing `fleetcheck-1.0.0-all.jar`).
+Repository URL: https://github.com/TiagoGuerra18/fleetcheck-gradle
+
+**Evidence 8.4: Comparison between Maven and Gradle workflows.**
+Both CI workflows fulfill identical continuous integration objectives: compiling Java 21 code, executing automated test suites, and archiving an executable standalone Fat JAR artifact. 
+However, key technical differences exist:
+1. **Configuration Syntax & Declarative Style:** Maven uses structured, tag-based XML (`pom.xml`) coupled with the Shade and CycloneDX plugins. Gradle uses a concise domain-specific language (`build.gradle`) with the Shadow plugin, providing cleaner dependency scopes (`implementation`, `testImplementation`, `testRuntimeOnly`) and more flexible task customization.
+2. **Action Ecosystem & Execution Model:** The Maven workflow is invoked via standard wrapper flags (`./mvnw -B clean verify`) relying on JVM caching via `actions/setup-java`. In contrast, the Gradle workflow takes advantage of the dedicated `gradle/actions/setup-gradle` action, which delivers native build caching, configuration cache support, and targeted task invocations (`./gradlew clean build shadowJar`).
